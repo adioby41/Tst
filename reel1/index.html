@@ -252,10 +252,6 @@
             <span class="line line-a" data-layout-allow-overflow data-text="Толкание ядра"></span>
             <span class="line line-b" data-layout-allow-overflow data-text="Женщины"></span>
           </div>
-          <div class="title-state" id="state-2">
-            <span class="line line-a" data-layout-allow-overflow data-text="Представление"></span>
-            <span class="line line-b" data-layout-allow-overflow data-text="участниц"></span>
-          </div>
         </div>
       </div>
     </div>
@@ -285,26 +281,18 @@
       tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -50, duration: LOOP, ease: "none" }, 0);
       tl.fromTo("#mq-small", { xPercent: -50 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
 
-      // ---- title swaps: state-1 settled at t=0 and t=10 ----
+      // ---- title refresh: letters leave and return, settled at t=0 and t=10 ----
       const s1 = (sel) => `#state-1 ${sel} .ch`;
-      const s2 = (sel) => `#state-2 ${sel} .ch`;
       const out = { yPercent: -140, duration: 0.5, ease: "power3.in", stagger: 0.025 };
       const inn = { yPercent: 0, duration: 0.6, ease: "power3.out", stagger: 0.025 };
 
-      tl.set([s2(".line-a"), s2(".line-b")], { yPercent: 140 }, 0);
       tl.set([s1(".line-a"), s1(".line-b")], { yPercent: 0 }, 0);
-
-      // 4.3 → state-1 leaves, 4.85 → state-2 arrives
-      tl.to(s1(".line-a"), out, 4.3);
-      tl.to(s1(".line-b"), out, 4.4);
-      tl.fromTo(s2(".line-a"), { yPercent: 140 }, inn, 4.85);
-      tl.fromTo(s2(".line-b"), { yPercent: 140 }, inn, 4.95);
-
-      // 8.75 → state-2 leaves, 9.3 → state-1 arrives, settles by 10.0
-      tl.to(s2(".line-a"), out, 8.75);
-      tl.to(s2(".line-b"), out, 8.8);
-      tl.fromTo(s1(".line-a"), { yPercent: 140 }, { ...inn, stagger: 0.02 }, 9.3);
-      tl.fromTo(s1(".line-b"), { yPercent: 140 }, { ...inn, stagger: 0.02, duration: 0.5 }, 9.38);
+      [[4.3, 4.85], [8.75, 9.3]].forEach(([tOut, tIn]) => {
+        tl.to(s1(".line-a"), out, tOut);
+        tl.to(s1(".line-b"), out, tOut + 0.1);
+        tl.fromTo(s1(".line-a"), { yPercent: 140 }, { ...inn, stagger: 0.02 }, tIn);
+        tl.fromTo(s1(".line-b"), { yPercent: 140 }, { ...inn, stagger: 0.02, duration: 0.5 }, tIn + 0.08);
+      });
 
       // accent bar punctuates each swap
       [4.3, 8.75].forEach((t) => {
