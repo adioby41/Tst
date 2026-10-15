@@ -76,7 +76,7 @@
       #header {
         position: absolute;
         left: 110px;
-        right: 110px;
+        right: 560px;
         top: 64px;
         display: flex;
         align-items: center;
@@ -97,14 +97,23 @@
         height: 14px;
         background: linear-gradient(#c8102e 0 66%, #2f8f4e 66% 100%);
       }
-      #year {
-        font-family: "Oswald", sans-serif;
-        font-weight: 700;
-        font-size: 44px;
-        letter-spacing: 0.04em;
-        color: #f2efe9;
-        padding: 2px 22px;
-        border: 2px solid #c8102e;
+
+      #logo-card {
+        position: absolute;
+        right: 110px;
+        top: 56px;
+        width: 400px;
+        height: 420px;
+        padding: 34px;
+        background: #ffffff;
+        border-radius: 6px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+      #logo-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
 
       /* ---------- title ---------- */
@@ -120,8 +129,8 @@
         left: 0;
         top: 22px;
         width: 12px;
-        height: 370px;
-        background: #c8102e;
+        height: 330px;
+        background: #00adef;
         transform-origin: 50% 0%;
       }
       .title-state {
@@ -136,17 +145,17 @@
         padding-top: 6px;
       }
       .line-a {
-        font-size: 196px;
+        font-size: 172px;
         font-weight: 700;
         letter-spacing: -0.015em;
         text-transform: uppercase;
       }
       .line-b {
-        font-size: 150px;
+        font-size: 132px;
         font-weight: 400;
         letter-spacing: 0.02em;
         text-transform: uppercase;
-        color: #e0283e;
+        color: #00adef;
       }
       .ch {
         display: inline-block;
@@ -198,7 +207,7 @@
         height: 160px;
         margin: -80px 0 0 -80px;
         border-radius: 50%;
-        border: 3px solid #e0283e;
+        border: 3px solid #00adef;
       }
     </style>
   </head>
@@ -219,8 +228,8 @@
         <div class="rule" style="top: 948px"></div>
         <div class="rule" style="top: 1022px"></div>
         <div id="mq-small" class="marquee" data-layout-allow-overflow>
-          <span>ЧЕМПИОНАТ БЕЛАРУСИ · ЛЁГКАЯ АТЛЕТИКА · ПОМЕЩЕНИЕ · 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · </span
-          ><span>ЧЕМПИОНАТ БЕЛАРУСИ · ЛЁГКАЯ АТЛЕТИКА · ПОМЕЩЕНИЕ · 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · </span>
+          <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ · ЛЁГКАЯ АТЛЕТИКА · МОГИЛЁВ 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ ·&nbsp;</span
+          ><span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ · ЛЁГКАЯ АТЛЕТИКА · МОГИЛЁВ 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ ·&nbsp;</span>
         </div>
       </div>
 
@@ -231,7 +240,7 @@
           <line class="tick" x1="1480" y1="744" x2="1480" y2="776" />
           <line class="tick" x1="1630" y1="744" x2="1630" y2="776" />
           <line class="tick" x1="1780" y1="736" x2="1780" y2="784" />
-          <path id="arc" d="M 980 740 Q 1520 80 1780 760" />
+          <path id="arc" d="M 960 740 Q 1500 230 1780 760" />
         </svg>
         <div id="ring"></div>
         <div id="ball"></div>
@@ -242,10 +251,10 @@
         <div id="header">
           <div class="flag">
             <span class="stripe"></span>
-            <span>ЧЕМПИОНАТ БЕЛАРУСИ ПО ЛЁГКОЙ АТЛЕТИКЕ В ПОМЕЩЕНИИ</span>
+            <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ В ПОМЕЩЕНИИ</span>
           </div>
-          <div id="year">2027</div>
         </div>
+        <div id="logo-card"><img src="assets/logo-2027.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
         <div id="title-wrap" data-layout-allow-overlap>
           <div id="accent-bar"></div>
           <div class="title-state" id="state-1">
