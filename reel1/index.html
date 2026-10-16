@@ -45,7 +45,7 @@
       }
       #mq-big {
         top: 560px;
-        font-size: 340px;
+        font-size: 300px;
         font-weight: 700;
         line-height: 1;
         letter-spacing: -0.01em;
@@ -219,13 +219,12 @@
       <!-- background type -->
       <div id="bg" class="layer clip" data-start="0" data-duration="10" data-track-index="0">
         <div id="mq-big" class="marquee" data-layout-ignore aria-hidden="true">
-          <span>Толкание ядра · Женщины ·</span><span>Толкание ядра · Женщины ·</span>
+          <span>Толкание ядра ·</span><span>Толкание ядра ·</span><span>Толкание ядра ·</span>
         </div>
         <div class="rule" style="top: 948px"></div>
         <div class="rule" style="top: 1022px"></div>
         <div id="mq-small" class="marquee" data-layout-allow-overflow>
-          <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ · ЛЁГКАЯ АТЛЕТИКА · МОГИЛЁВ 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ ·&nbsp;</span
-          ><span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ · ЛЁГКАЯ АТЛЕТИКА · МОГИЛЁВ 2027 · ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ ·&nbsp;</span>
+          <span>ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТОЛКАНИЕ ЯДРА · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span>
         </div>
       </div>
 
@@ -250,7 +249,7 @@
             <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ В ПОМЕЩЕНИИ</span>
           </div>
         </div>
-        <div id="logo-card"><img src="assets/logo-2027-white.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
+        <div id="logo-card"><img src="assets/logo-2027.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
         <div id="title-wrap" data-layout-allow-overlap>
           <div id="accent-bar"></div>
           <div class="title-state" id="state-1">
@@ -283,29 +282,20 @@
       const tl = gsap.timeline({ paused: true });
 
       // ---- marquees: one full repeat per loop, seamless ----
-      tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -50, duration: LOOP, ease: "none" }, 0);
-      tl.fromTo("#mq-small", { xPercent: -50 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
+      tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+      tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
 
-      // ---- title refresh: letters leave and return, settled at t=0 and t=10 ----
+      // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
       const s1 = (sel) => `#state-1 ${sel} .ch`;
-      const out = { yPercent: -140, duration: 0.5, ease: "power3.in", stagger: 0.025 };
-      const inn = { yPercent: 0, duration: 0.6, ease: "power3.out", stagger: 0.025 };
-
       tl.set([s1(".line-a"), s1(".line-b")], { yPercent: 0 }, 0);
-      [[4.3, 4.85], [8.75, 9.3]].forEach(([tOut, tIn]) => {
-        tl.to(s1(".line-a"), out, tOut);
-        tl.to(s1(".line-b"), out, tOut + 0.1);
-        tl.fromTo(s1(".line-a"), { yPercent: 140 }, { ...inn, stagger: 0.02 }, tIn);
-        tl.fromTo(s1(".line-b"), { yPercent: 140 }, { ...inn, stagger: 0.02, duration: 0.5 }, tIn + 0.08);
-      });
+      tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
+      tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
+      tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
+      tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
+      tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
+      tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
 
-      // accent bar punctuates each swap
-      [4.3, 8.75].forEach((t) => {
-        tl.to("#accent-bar", { scaleY: 0, duration: 0.45, ease: "power3.in" }, t);
-        tl.to("#accent-bar", { scaleY: 1, duration: 0.6, ease: "power3.out" }, t + 0.55);
-      });
-
-      // ---- shot put: two throws per loop, scene empty at each cycle edge ----
+      // ---- shot put: one slow throw per loop, scene empty at the loop edge ----
       const arc = document.getElementById("arc");
       const ball = document.getElementById("ball");
       const LEN = arc.getTotalLength();
@@ -324,20 +314,21 @@
         });
       };
 
-      [0, 5].forEach((t0) => {
+      {
+        const t0 = 0.6, FLIGHT = 2.4, land = t0 + FLIGHT;
         const fly = { p: 0 };
-        tl.set(arc, { strokeDashoffset: LEN, opacity: 1 }, t0);
-        tl.set(ball, { opacity: 1 }, t0 + 0.15);
-        tl.to(arc, { strokeDashoffset: 0, duration: 1.5, ease: "power1.in" }, t0 + 0.15);
-        tl.to(fly, { p: 1, duration: 1.5, ease: "power1.in", onUpdate: () => place(fly.p) }, t0 + 0.15);
+        tl.set(arc, { strokeDashoffset: LEN, opacity: 1 }, 0);
+        tl.set(ball, { opacity: 1 }, t0);
+        tl.to(arc, { strokeDashoffset: 0, duration: FLIGHT, ease: "power1.in" }, t0);
+        tl.to(fly, { p: 1, duration: FLIGHT, ease: "power1.in", onUpdate: () => place(fly.p) }, t0);
         // landing
-        tl.set("#ring", { scale: 0.2, opacity: 1 }, t0 + 1.65);
-        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.0, ease: "power2.out" }, t0 + 1.65);
-        tl.set(ball, { scale: 1.25 }, t0 + 1.65);
-        tl.to(ball, { scale: 1, duration: 0.35, ease: "power2.out" }, t0 + 1.65);
-        // clear before next cycle
-        tl.to([arc, ball], { opacity: 0, duration: 0.6, ease: "power1.inOut" }, t0 + 3.7);
-      });
+        tl.set("#ring", { scale: 0.2, opacity: 1 }, land);
+        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.6, ease: "power2.out" }, land);
+        tl.set(ball, { scale: 1.25 }, land);
+        tl.to(ball, { scale: 1, duration: 0.5, ease: "power2.out" }, land);
+        // clear well before the loop edge
+        tl.to([arc, ball], { opacity: 0, duration: 1.0, ease: "power1.inOut" }, 6.2);
+      }
 
       window.__timelines["main"] = tl;
       tl.seek(0);
