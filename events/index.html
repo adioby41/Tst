@@ -1,0 +1,536 @@
+<!doctype html>
+<html
+  lang="ru"
+  data-composition-variables='[
+    {"id":"title","type":"string","label":"Название вида","default":"60 м"},
+    {"id":"tags","type":"string","label":"Уточнение (раунд, шорт-трек)","default":"ЗАБЕГИ"},
+    {"id":"gender","type":"enum","label":"Пол","default":"men","options":[{"value":"men","label":"Мужчины"},{"value":"women","label":"Женщины"},{"value":"ceremony","label":"Церемония"}]},
+    {"id":"scene","type":"enum","label":"Сцена","default":"sprint","options":[{"value":"sprint","label":"Спринт"},{"value":"hurdles","label":"Барьеры"},{"value":"track","label":"Бег по кругу"},{"value":"walk","label":"Ходьба"},{"value":"steeple","label":"С препятствиями"},{"value":"relay","label":"Эстафета"},{"value":"ceremony","label":"Награждение"}]},
+    {"id":"laps","type":"number","label":"Кругов по 200 м","default":0},
+    {"id":"name","type":"string","label":"Имя файла","default":"preview"}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0b0e;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: radial-gradient(120% 90% at 30% 20%, #1a1c22 0%, #0d0e12 55%, #07080a 100%);
+        font-family: "Oswald", sans-serif;
+        color: #f2efe9;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- giant background marquee ---------- */
+      .marquee {
+        position: absolute;
+        left: 0;
+        white-space: nowrap;
+        display: flex;
+        width: max-content;
+      }
+      .marquee span {
+        display: block;
+        padding-right: 80px;
+      }
+      #mq-big {
+        top: 560px;
+        font-size: 270px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.01em;
+        color: #121318;
+        -webkit-text-stroke: 2px rgba(242, 239, 233, 0.13);
+        text-transform: uppercase;
+      }
+      #mq-small {
+        top: 968px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 30px;
+        font-weight: 400;
+        letter-spacing: 0.28em;
+        color: rgba(242, 239, 233, 0.5);
+      }
+      #mq-small span {
+        padding-right: 0;
+      }
+      .rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(242, 239, 233, 0.14);
+      }
+
+      /* ---------- header ---------- */
+      #header {
+        position: absolute;
+        left: 110px;
+        right: 560px;
+        top: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 26px;
+        letter-spacing: 0.22em;
+        color: rgba(242, 239, 233, 0.78);
+      }
+      #header .flag {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      #header .flag-by {
+        display: block;
+        width: 72px;
+        height: 36px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+
+      #logo-card {
+        position: absolute;
+        right: 110px;
+        top: 56px;
+        width: 380px;
+        height: 406px;
+      }
+      #logo-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* ---------- title ---------- */
+      #title-wrap {
+        position: absolute;
+        left: 110px;
+        top: 150px;
+        width: 1500px;
+        height: 420px;
+      }
+      #accent-bar {
+        position: absolute;
+        left: 0;
+        top: 22px;
+        width: 12px;
+        height: 330px;
+        background: #00adef;
+        transform-origin: 50% 0%;
+      }
+      .title-state {
+        position: absolute;
+        left: 52px;
+        top: 0;
+      }
+      .line {
+        display: block;
+        overflow: hidden;
+        line-height: 1.04;
+        padding-top: 6px;
+        padding-bottom: 0.16em;
+        margin-bottom: -0.16em;
+      }
+      .line-a {
+        font-size: 138px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        text-transform: uppercase;
+      }
+      .line-b {
+        font-size: 132px;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #00adef;
+      }
+      .ch {
+        display: inline-block;
+        will-change: transform;
+      }
+      .sp {
+        display: inline-block;
+        width: 0.26em;
+      }
+
+      /* ---------- throw ---------- */
+      #throw svg {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #arc {
+        fill: none;
+        stroke: rgba(242, 239, 233, 0.55);
+        stroke-width: 3;
+        stroke-linecap: round;
+      }
+      #ground {
+        stroke: rgba(242, 239, 233, 0.22);
+        stroke-width: 2;
+        stroke-dasharray: 6 14;
+      }
+      .tick {
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-width: 2;
+      }
+      #ball {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 34px;
+        height: 34px;
+        margin: -17px 0 0 -17px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9d6cf 45%, #8e8a82 100%);
+        box-shadow: 0 0 34px rgba(255, 255, 255, 0.35);
+      }
+      .upright {
+        stroke: rgba(242, 239, 233, 0.45);
+        stroke-width: 4;
+      }
+      #hj-bar {
+        stroke: #f2efe9;
+        stroke-width: 5;
+        stroke-linecap: round;
+      }
+      .pin {
+        stroke-width: 3;
+      }
+      .mat {
+        fill: rgba(242, 239, 233, 0.06);
+        stroke: rgba(242, 239, 233, 0.3);
+        stroke-width: 2;
+      }
+      #vaulter {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 160px;
+        height: 160px;
+        margin: -80px 0 0 -80px;
+      }
+      #vaulter svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      #vaulter circle {
+        fill: #f2efe9;
+      }
+      #vaulter path {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #pole {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 4;
+        stroke-linecap: round;
+      }
+      #box {
+        fill: rgba(242, 239, 233, 0.5);
+      }
+      #arc {
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-dasharray: 2 10;
+      }
+      #fig {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #fig-head {
+        fill: #f2efe9;
+      }
+      #ring {
+        position: absolute;
+        left: 1735px;
+        top: 840px;
+        width: 160px;
+        height: 160px;
+        margin: -80px 0 0 -80px;
+        border-radius: 50%;
+        border: 3px solid #00adef;
+      }
+      .line-c {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 40px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        line-height: 1.1;
+        color: rgba(242, 239, 233, 0.86);
+        margin-top: 10px;
+      }
+      #scene .ground {
+        stroke: rgba(242, 239, 233, 0.22);
+        stroke-width: 2;
+        stroke-dasharray: 6 14;
+      }
+      #scene .lane {
+        stroke: rgba(242, 239, 233, 0.08);
+        stroke-width: 2;
+      }
+      #scene .fig {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #scene .fig-head {
+        fill: #f2efe9;
+      }
+      #scene .baton {
+        stroke: #f2c14e;
+        stroke-linecap: round;
+      }
+      #scene .block {
+        fill: rgba(242, 239, 233, 0.55);
+      }
+      #scene .finish {
+        stroke: #f2efe9;
+        stroke-width: 4;
+      }
+      #scene .flash {
+        fill: none;
+        stroke: #00adef;
+        stroke-width: 3;
+      }
+      #scene .hurdle-leg {
+        stroke: rgba(242, 239, 233, 0.5);
+        stroke-width: 3;
+      }
+      #scene .hurdle-bar {
+        stroke: #f2efe9;
+        stroke-width: 6;
+        stroke-linecap: round;
+      }
+      #scene .barrier {
+        fill: #f2efe9;
+      }
+      #scene .zone {
+        stroke: #f2c14e;
+        stroke-width: 4;
+      }
+      #scene .zone-band {
+        stroke: rgba(242, 193, 78, 0.35);
+        stroke-width: 6;
+      }
+      #scene .oval {
+        fill: rgba(242, 239, 233, 0.03);
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-width: 10;
+      }
+      #scene .oval-lap {
+        fill: none;
+        stroke: #00adef;
+        stroke-width: 4;
+      }
+      #scene .oval-start {
+        stroke: #f2efe9;
+        stroke-width: 3;
+      }
+      #scene .oval-dot {
+        fill: #f2efe9;
+      }
+      #scene .oval-label {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 34px;
+        letter-spacing: 0.04em;
+        fill: #f2efe9;
+        text-anchor: middle;
+      }
+      #scene .oval-sub {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 18px;
+        letter-spacing: 0.2em;
+        fill: rgba(242, 239, 233, 0.7);
+        text-anchor: middle;
+      }
+      #scene .podium {
+        fill: rgba(242, 239, 233, 0.07);
+        stroke: rgba(242, 239, 233, 0.5);
+        stroke-width: 2;
+      }
+      #scene .podium-n {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 64px;
+        fill: rgba(242, 239, 233, 0.85);
+        text-anchor: middle;
+      }
+      #scene .ribbon {
+        fill: none;
+        stroke: #00adef;
+        stroke-width: 9;
+        stroke-linejoin: round;
+      }
+      #scene .medal.gold { fill: #f2c14e; }
+      #scene .medal.silver { fill: #c9ced6; }
+      #scene .medal.bronze { fill: #c98a52; }
+      #scene .medal-in {
+        fill: none;
+        stroke: rgba(0, 0, 0, 0.25);
+        stroke-width: 3;
+      }
+      #scene .medal-n {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 30px;
+        fill: rgba(0, 0, 0, 0.55);
+        text-anchor: middle;
+      }
+      #scene .burst {
+        fill: none;
+        stroke: #f2c14e;
+        stroke-width: 3;
+      }
+      #scene .spark {
+        fill: #f2c14e;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="10"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- background type -->
+      <div id="bg" class="layer clip" data-start="0" data-duration="10" data-track-index="0">
+        <div id="mq-big" class="marquee" data-layout-ignore aria-hidden="true">
+          <span class="mq-b"></span><span class="mq-b"></span><span class="mq-b"></span>
+        </div>
+        <div class="rule" style="top: 948px"></div>
+        <div class="rule" style="top: 1022px"></div>
+        <div id="mq-small" class="marquee" data-layout-allow-overflow>
+          <span class="mq-s"></span><span class="mq-s"></span><span class="mq-s"></span><span class="mq-s"></span>
+        </div>
+      </div>
+
+      <!-- event scene, built from the scene variable -->
+      <div id="throw" class="layer clip" data-start="0" data-duration="10" data-track-index="1">
+        <svg id="scene" viewBox="0 0 1920 1080" data-layout-allow-overflow></svg>
+      </div>
+
+      <!-- header + title -->
+      <div id="fg" class="layer clip" data-start="0" data-duration="10" data-track-index="2">
+        <div id="header">
+          <div class="flag">
+            <svg class="flag-by" viewBox="0 0 90 45" aria-label="Флаг Беларуси"><rect width="90" height="30" fill="#c8102e"/><rect y="30" width="90" height="15" fill="#007c30"/><rect width="10" height="45" fill="#fff"/><path d="M5 1 L9 7.5 L5 14 L1 7.5 Z" fill="#c8102e"/><path d="M5 4.5 L7 7.5 L5 10.5 L3 7.5 Z" fill="#fff"/><rect x="4.2" y="6.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 0 L2 0 L0 3 Z M10 0 L8 0 L10 3 Z M0 15 L2 15 L0 12 Z M10 15 L8 15 L10 12 Z" fill="#c8102e"/><path d="M5 16 L9 22.5 L5 29 L1 22.5 Z" fill="#c8102e"/><path d="M5 19.5 L7 22.5 L5 25.5 L3 22.5 Z" fill="#fff"/><rect x="4.2" y="21.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 15 L2 15 L0 18 Z M10 15 L8 15 L10 18 Z M0 30 L2 30 L0 27 Z M10 30 L8 30 L10 27 Z" fill="#c8102e"/><path d="M5 31 L9 37.5 L5 44 L1 37.5 Z" fill="#c8102e"/><path d="M5 34.5 L7 37.5 L5 40.5 L3 37.5 Z" fill="#fff"/><rect x="4.2" y="36.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 30 L2 30 L0 33 Z M10 30 L8 30 L10 33 Z M0 45 L2 45 L0 42 Z M10 45 L8 45 L10 42 Z" fill="#c8102e"/></svg>
+            <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ В ПОМЕЩЕНИИ</span>
+          </div>
+        </div>
+        <div id="logo-card"><img src="assets/logo-2027-dark-bg.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
+        <div id="title-wrap" data-layout-allow-overlap>
+          <div id="accent-bar"></div>
+          <div class="title-state" id="state-1">
+            <span class="line line-a" data-layout-allow-overflow></span>
+            <span class="line line-b" data-layout-allow-overflow></span>
+            <span class="line line-c" data-layout-allow-overflow></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="scenes.js"></script>
+    <script>
+      const V = Object.assign(
+        { title: "60 м", tags: "ЗАБЕГИ", gender: "men", scene: "sprint", laps: 0 },
+        (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {},
+      );
+      const GENDER = {
+        men: { text: "Мужчины", color: "#00adef" },
+        women: { text: "Женщины", color: "#ff5fa8" },
+        ceremony: { text: "награждения", color: "#f2c14e" },
+      }[V.gender];
+      const TICKER = V.gender === "ceremony" ? V.title + " " + GENDER.text : V.title + " · " + GENDER.text;
+
+      // texts from variables (setup only)
+      document.querySelector(".line-a").dataset.text = V.title;
+      document.querySelector(".line-b").dataset.text = GENDER.text;
+      document.querySelector(".line-c").dataset.text = V.tags || "";
+      document.querySelector(".line-b").style.color = GENDER.color;
+      document.querySelectorAll(".mq-b").forEach((e) => (e.textContent = V.title + " ·"));
+      document.querySelectorAll(".mq-s").forEach((e) => (e.textContent = TICKER.toUpperCase() + " · МОГИЛЁВ 2027 · "));
+      if (!V.tags) document.querySelector(".line-c").style.display = "none";
+
+      document.querySelectorAll(".line").forEach((line) => {
+        const text = line.dataset.text || "";
+        line.innerHTML = "";
+        for (const c of text) {
+          const s = document.createElement("span");
+          if (c === " ") {
+            s.className = "sp";
+          } else {
+            s.className = "ch";
+            s.textContent = c;
+          }
+          line.appendChild(s);
+        }
+      });
+
+      document.fonts.ready.then(() => {
+        // fit the main title next to the logo
+        const la = document.querySelector(".line-a");
+        const w = la.scrollWidth, MAXW = 1250;
+        if (w > MAXW) la.style.fontSize = Math.floor(172 * (MAXW / w)) + "px";
+
+        const LOOP = 10;
+        const tl = gsap.timeline({ paused: true });
+
+        // ---- marquees: one full repeat per loop, seamless ----
+        tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+        tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
+
+        // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
+        const s1 = (sel) => `#state-1 ${sel} .ch`;
+        tl.set([s1(".line-a"), s1(".line-b"), s1(".line-c")], { yPercent: 0 }, 0);
+        tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
+        tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
+        tl.to(s1(".line-c"), { yPercent: -140, duration: 0.6, ease: "power2.in", stagger: 0.012 }, 7.85);
+        tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
+        tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
+        tl.fromTo(s1(".line-c"), { yPercent: 140 }, { yPercent: 0, duration: 0.6, ease: "power2.out", stagger: 0.01 }, 9.05);
+        tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
+        tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
+
+        buildScene(tl, V);
+
+        window.__timelines["main"] = tl;
+        tl.seek(0);
+      });
+    </script>
+  </body>
+</html>
