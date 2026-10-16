@@ -1,0 +1,14 @@
+{
+  "name": "reel1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.162 preview",
+    "check": "npx --yes hyperframes@0.8.162 check",
+    "render": "npx --yes hyperframes@0.8.162 render",
+    "publish": "npx --yes hyperframes@0.8.162 publish"
+  },
+  "dependencies": {
+    "gsap": "^3.14.2"
+  }
+}
