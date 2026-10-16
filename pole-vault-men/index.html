@@ -248,10 +248,20 @@
         stroke: rgba(242, 239, 233, 0.28);
         stroke-dasharray: 2 10;
       }
+      #fig {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #fig-head {
+        fill: #f2efe9;
+      }
       #ring {
         position: absolute;
-        left: 1740px;
-        top: 812px;
+        left: 1770px;
+        top: 850px;
         width: 160px;
         height: 160px;
         margin: -80px 0 0 -80px;
@@ -284,22 +294,17 @@
       <!-- shot trajectory -->
       <div id="throw" class="layer clip" data-start="0" data-duration="10" data-track-index="1">
         <svg viewBox="0 0 1920 1080">
-          <line id="ground" x1="160" y1="860" x2="1880" y2="860" />
-          <rect class="mat" x="1636" y="812" width="244" height="48" />
-          <line class="upright" x1="1624" y1="860" x2="1624" y2="596" />
-          <line class="upright pin" x1="1624" y1="612" x2="1606" y2="612" />
-          <circle id="crossbar-end" cx="1606" cy="612" r="9" />
-          <path id="box" d="M 1560 860 L 1606 860 L 1606 874 Z" />
-          <path id="arc" d="M 1180 826 C 1370 826 1480 770 1530 650 C 1562 560 1590 522 1622 522 C 1676 522 1722 640 1740 800" />
+          <line id="ground" x1="160" y1="900" x2="1880" y2="900" />
+          <rect class="mat" x="1692" y="850" width="196" height="50" />
+          <line class="upright" x1="1672" y1="900" x2="1672" y2="600" />
+          <line class="upright pin" x1="1672" y1="620" x2="1654" y2="620" />
+          <circle id="crossbar-end" cx="1652" cy="620" r="9" />
+          <path id="box" d="M 1556 900 L 1606 900 L 1606 914 Z" />
           <path id="pole" d="M 0 0" />
+          <path id="fig" d="M 0 0" />
+          <circle id="fig-head" cx="0" cy="0" r="9" />
         </svg>
         <div id="ring"></div>
-        <div id="vaulter">
-          <svg viewBox="-80 -80 160 160">
-            <circle cx="0" cy="-50" r="10" />
-            <path d="M 0 -38 L 0 0 M 0 -32 L 12 -62 M 0 -30 L 4 -60 M 0 0 L -12 36 M 0 0 L 12 32" />
-          </svg>
-        </div>
       </div>
 
       <!-- header + title -->
@@ -356,87 +361,136 @@
       tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
       tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
 
-      // ---- pole vault: run-up with pole, plant, swing, bar clearance, landing ----
-      const arc = document.getElementById("arc");
+      // ---- pole vault, phase by phase: approach, plant, take-off, rockback, stretch/turn, bar clearance, landing ----
       const pole = document.getElementById("pole");
-      const vaulter = document.getElementById("vaulter");
-      const LEN = arc.getTotalLength();
-      const N = 300;
-      const PTS = Array.from({ length: N + 1 }, (_, i) => arc.getPointAtLength((LEN * i) / N));
-      const RUN_X0 = 640, Y_RUN = 826, BOX = { x: 1600, y: 860 }, POLE = 420;
-      const HANDS = { x: 11, y: -61 };
-
+      const fig = document.getElementById("fig");
+      const head = document.getElementById("fig-head");
+      const BOX = { x: 1600, y: 904 }, POLE = 300;
+      const B = { torso: 34, neck: 13, upper: 17, fore: 17, thigh: 23, shin: 22 };
+      const D2R = Math.PI / 180;
       const lerp = (a, b, k) => a + (b - a) * k;
-      const onArc = (q) => {
-        const f = q * N, i = Math.min(N - 1, Math.floor(f)), k = f - i;
-        return { x: lerp(PTS[i].x, PTS[i + 1].x, k), y: lerp(PTS[i].y, PTS[i + 1].y, k) };
+      const smooth = (k) => k * k * (3 - 2 * k);
+
+      // hips path and body rotation (0 = upright, negative = rocking back)
+      const KEYS = [
+        [1.30, 1250, 854, 10],
+        [1.55, 1300, 850, 4],    // plant / take-off
+        [1.95, 1420, 830, -20],  // penetration, pole at full bend
+        [2.35, 1482, 758, -105], // rockback
+        [2.75, 1565, 552, -172], // stretch, inverted along the pole
+        [2.95, 1600, 536, -180], // turn
+        [3.25, 1655, 548, -112], // bar clearance
+        [3.55, 1716, 650, -88],
+        [4.05, 1770, 846, -80],  // landing on the back
+      ];
+      // limb angles from "down along the body", positive toward the front: [arm, elbow, leadThigh, leadKnee, trailThigh, trailKnee]
+      const POSES = [
+        [1.55, [165, 10, 75, 95, -18, 12]],
+        [1.95, [172, 4, 55, 85, -32, 22]],
+        [2.35, [172, 4, 135, 115, 125, 105]],
+        [2.75, [176, 0, 4, 0, -4, 0]],
+        [2.95, [178, 0, 0, 0, -6, 0]],
+        [3.25, [150, 25, 40, 25, 30, 15]],
+        [3.55, [130, 30, 70, 35, 60, 30]],
+        [4.05, [115, 35, 85, 40, 70, 30]],
+      ];
+      const seg = (list, t) => {
+        if (t <= list[0][0]) return [0, 0];
+        for (let j = 1; j < list.length; j++) if (t <= list[j][0]) return [j - 1, smooth((t - list[j - 1][0]) / (list[j][0] - list[j - 1][0]))];
+        return [list.length - 2, 1];
       };
-      // body rotation over the vault: rock back, invert along the pole, turn over the bar, fall on the back
-      const ROT = [[0, 0], [0.3, -110], [0.5, -178], [0.66, -225], [1, -262]];
-      const rotAt = (q) => {
-        for (let j = 1; j < ROT.length; j++) {
-          if (q <= ROT[j][0]) {
-            const [q0, r0] = ROT[j - 1], [q1, r1] = ROT[j];
-            return lerp(r0, r1, (q - q0) / (q1 - q0));
-          }
+      const hipAt = (t) => {
+        if (t <= 1.3) {
+          const k = t / 1.3, ph = t * Math.PI * 2 * 2.4;
+          return { x: lerp(520, 1250, k), y: 854 - Math.abs(Math.sin(ph)) * 5, rot: 10 };
         }
-        return ROT[ROT.length - 1][1];
+        const [j, k] = seg(KEYS, t), A = KEYS[j], C = KEYS[j + 1];
+        return { x: lerp(A[1], C[1], k), y: lerp(A[2], C[2], k), rot: lerp(A[3], C[3], k) };
       };
-      const handsAt = (hip, deg) => {
-        const r = (deg * Math.PI) / 180, c = Math.cos(r), sn = Math.sin(r);
-        return { x: hip.x + HANDS.x * c - HANDS.y * sn, y: hip.y + HANDS.x * sn + HANDS.y * c };
+      const runPose = (t) => {
+        const ph = t * Math.PI * 2 * 1.2;
+        const l1 = 38 * Math.sin(ph), l2 = -38 * Math.sin(ph);
+        return [40, 75, l1 + 8, 25 + 55 * Math.max(0, Math.cos(ph)), l2 + 8, 25 + 55 * Math.max(0, -Math.cos(ph))];
       };
-      const straightPole = (from, ang, len) =>
-        `M ${from.x} ${from.y} L ${from.x + Math.cos(ang) * len} ${from.y + Math.sin(ang) * len}`;
-
-      // pole release moment, computed once so the fall-away is deterministic
-      const Q_REL = 0.5;
-      const relHands = handsAt(onArc(Q_REL), rotAt(Q_REL));
-      const relAng = Math.atan2(relHands.y - BOX.y, relHands.x - BOX.x);
-
-      const runFrame = (r) => {
-        const hip = { x: lerp(RUN_X0, PTS[0].x, r), y: Y_RUN };
-        const h = handsAt(hip, 0);
-        gsap.set(vaulter, { x: hip.x, y: hip.y, rotation: 0 });
-        gsap.set(pole, { attr: { d: straightPole(h, 0.23, POLE) }, opacity: 1 });
-      };
-      const vaultFrame = (q) => {
-        const hip = onArc(q), deg = rotAt(q);
-        gsap.set(vaulter, { x: hip.x, y: hip.y, rotation: deg });
-        if (q <= Q_REL) {
-          const h = handsAt(hip, deg);
-          const dx = h.x - BOX.x, dy = h.y - BOX.y, d = Math.hypot(dx, dy);
-          const sag = Math.min(70, Math.max(0, POLE - d) * 0.45);
-          // bend bulges forward, toward the bar
-          const nx = -dy / d, ny = dx / d, sgn = nx > 0 ? 1 : -1;
-          const cx = (BOX.x + h.x) / 2 + nx * sag * sgn, cy = (BOX.y + h.y) / 2 + ny * sag * sgn;
-          gsap.set(pole, { attr: { d: `M ${BOX.x} ${BOX.y} Q ${cx} ${cy} ${h.x} ${h.y}` }, opacity: 1 });
-        } else {
-          // released pole falls back toward the runway and fades
-          const k = Math.min(1, (q - Q_REL) / 0.3);
-          const ang = lerp(relAng, -Math.PI * 0.92, k * k);
-          gsap.set(pole, { attr: { d: straightPole(BOX, ang, POLE) }, opacity: 1 - k });
+      const poseAt = (t) => {
+        if (t <= 1.3) return runPose(t);
+        if (t <= 1.55) {
+          const k = smooth((t - 1.3) / 0.25), r = runPose(1.3), q = POSES[0][1];
+          return r.map((v, i) => lerp(v, q[i], k));
         }
+        const [j, k] = seg(POSES, t), A = POSES[j][1], C = POSES[j + 1][1];
+        return A.map((v, i) => lerp(v, C[i], k));
       };
 
-      gsap.set(arc, { strokeDashoffset: 0, opacity: 0 });
+      // skeleton -> world points; facing flips after the turn (symmetric at that instant, so the swap is invisible)
+      const skeleton = (t) => {
+        const h = hipAt(t), P = poseAt(t), face = t < 2.9 ? 1 : -1;
+        const r = h.rot * D2R, c = Math.cos(r), sn = Math.sin(r);
+        const W = (lx, ly) => ({ x: h.x + (face * lx) * c - ly * sn, y: h.y + (face * lx) * sn + ly * c });
+        const dir = (deg) => [Math.sin(deg * D2R), Math.cos(deg * D2R)];
+        const limb = (ox, oy, a1, l1, a2, l2) => {
+          const [x1, y1] = dir(a1), [x2, y2] = dir(a2);
+          const j = [ox + x1 * l1, oy + y1 * l1];
+          return [W(ox, oy), W(j[0], j[1]), W(j[0] + x2 * l2, j[1] + y2 * l2)];
+        };
+        const sh = -B.torso + 4;
+        return {
+          hip: W(0, 0), neck: W(0, -B.torso), head: W(0, -B.torso - B.neck),
+          arm1: limb(0, sh, P[0], B.upper, P[0] + P[1], B.fore),
+          arm2: limb(0, sh, P[0] - 8, B.upper, P[0] - 8 + P[1], B.fore),
+          leg1: limb(0, 0, P[2], B.thigh, P[2] - P[3], B.shin),
+          leg2: limb(0, 0, P[4], B.thigh, P[4] - P[5], B.shin),
+        };
+      };
+      const pl = (pts) => "M " + pts.map((q) => `${q.x.toFixed(1)} ${q.y.toFixed(1)}`).join(" L ");
+
+      const RELEASE = 3.02;
+      let relAng = 0;
+      const poleD = (t, k) => {
+        const hand = k.arm1[2];
+        if (t <= 1.3) {
+          // carried high, tip forward and up, slowly lowering
+          const ang = lerp(-38, -24, t / 1.3) * D2R;
+          return `M ${hand.x - Math.cos(ang) * 40} ${hand.y - Math.sin(ang) * 40} L ${hand.x + Math.cos(ang) * (POLE - 40)} ${hand.y + Math.sin(ang) * (POLE - 40)}`;
+        }
+        if (t <= 1.55) {
+          // plant: tip drops into the box
+          const a0 = -24 * D2R, a1 = Math.atan2(BOX.y - hand.y, BOX.x - hand.x);
+          const ang = lerp(a0, a1, smooth((t - 1.3) / 0.25));
+          return `M ${hand.x} ${hand.y} L ${hand.x + Math.cos(ang) * POLE} ${hand.y + Math.sin(ang) * POLE}`;
+        }
+        if (t <= RELEASE) {
+          const dx = hand.x - BOX.x, dy = hand.y - BOX.y, d = Math.hypot(dx, dy);
+          const sag = Math.min(120, Math.max(0, POLE - d) * 1.6);
+          let nx = -dy / d, ny = dx / d;
+          if (nx < 0) { nx = -nx; ny = -ny; }
+          const cx = (BOX.x + hand.x) / 2 + nx * sag, cy = (BOX.y + hand.y) / 2 + ny * sag;
+          return `M ${BOX.x} ${BOX.y} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${hand.x.toFixed(1)} ${hand.y.toFixed(1)}`;
+        }
+        // released: falls back toward the runway
+        const k2 = Math.min(1, (t - RELEASE) / 0.9);
+        const ang = lerp(relAng, -178 * D2R, k2 * k2);
+        return `M ${BOX.x} ${BOX.y} L ${BOX.x + Math.cos(ang) * POLE} ${BOX.y + Math.sin(ang) * POLE}`;
+      };
+      { const k = skeleton(RELEASE), h = k.arm1[2]; relAng = Math.atan2(h.y - BOX.y, h.x - BOX.x); }
+
+      const draw = (t) => {
+        const k = skeleton(t);
+        gsap.set(fig, { attr: { d: [pl([k.hip, k.neck]), pl(k.arm1), pl(k.arm2), pl(k.leg1), pl(k.leg2)].join(" ") } });
+        gsap.set(head, { attr: { cx: k.head.x, cy: k.head.y } });
+        gsap.set(pole, { attr: { d: poleD(t, k) }, opacity: t <= RELEASE ? 1 : 1 - Math.min(1, (t - RELEASE) / 0.9) });
+      };
+
       gsap.set("#ring", { scale: 0.2, opacity: 0 });
-      gsap.set([vaulter, pole], { opacity: 0 });
-      runFrame(0);
-
+      draw(0);
       {
-        const RUN = 0.9, VAULT = 2.3, land = RUN + VAULT;
-        const run = { r: 0 }, fly = { q: 0 };
-        tl.set([vaulter, pole], { opacity: 0 }, 0);
-        tl.to([vaulter, pole], { opacity: 1, duration: 0.3, ease: "power1.out" }, 0);
-        tl.to(run, { r: 1, duration: RUN, ease: "none", onUpdate: () => runFrame(run.r) }, 0);
-        tl.to(fly, { q: 1, duration: VAULT, ease: "sine.inOut", onUpdate: () => vaultFrame(fly.q) }, RUN);
-        tl.fromTo(arc, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.out" }, RUN);
-        // landing on the mat
-        tl.set("#ring", { scale: 0.2, opacity: 1 }, land);
-        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.6, ease: "power2.out" }, land);
-        // clear well before the loop edge
-        tl.to([arc, vaulter], { opacity: 0, duration: 1.0, ease: "power1.inOut" }, 6.2);
+        const clock = { t: 0 }, END = 4.05;
+        tl.set([fig, head, pole], { opacity: 0 }, 0);
+        tl.to([fig, head, pole], { opacity: 1, duration: 0.35, ease: "power1.out" }, 0);
+        tl.to(clock, { t: END, duration: END, ease: "none", onUpdate: () => draw(clock.t) }, 0);
+        tl.set("#ring", { scale: 0.2, opacity: 1 }, END);
+        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.6, ease: "power2.out" }, END);
+        tl.to([fig, head], { opacity: 0, duration: 1.0, ease: "power1.inOut" }, 6.2);
       }
 
       window.__timelines["main"] = tl;
