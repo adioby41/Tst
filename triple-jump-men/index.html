@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0b0e;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: radial-gradient(120% 90% at 30% 20%, #1a1c22 0%, #0d0e12 55%, #07080a 100%);
+        font-family: "Oswald", sans-serif;
+        color: #f2efe9;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- giant background marquee ---------- */
+      .marquee {
+        position: absolute;
+        left: 0;
+        white-space: nowrap;
+        display: flex;
+        width: max-content;
+      }
+      .marquee span {
+        display: block;
+        padding-right: 80px;
+      }
+      #mq-big {
+        top: 560px;
+        font-size: 270px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.01em;
+        color: #121318;
+        -webkit-text-stroke: 2px rgba(242, 239, 233, 0.13);
+        text-transform: uppercase;
+      }
+      #mq-small {
+        top: 968px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 30px;
+        font-weight: 400;
+        letter-spacing: 0.28em;
+        color: rgba(242, 239, 233, 0.5);
+      }
+      #mq-small span {
+        padding-right: 0;
+      }
+      .rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(242, 239, 233, 0.14);
+      }
+
+      /* ---------- header ---------- */
+      #header {
+        position: absolute;
+        left: 110px;
+        right: 560px;
+        top: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 26px;
+        letter-spacing: 0.22em;
+        color: rgba(242, 239, 233, 0.78);
+      }
+      #header .flag {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      #header .flag-by {
+        display: block;
+        width: 72px;
+        height: 36px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+
+      #logo-card {
+        position: absolute;
+        right: 110px;
+        top: 56px;
+        width: 380px;
+        height: 406px;
+      }
+      #logo-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* ---------- title ---------- */
+      #title-wrap {
+        position: absolute;
+        left: 110px;
+        top: 150px;
+        width: 1500px;
+        height: 420px;
+      }
+      #accent-bar {
+        position: absolute;
+        left: 0;
+        top: 22px;
+        width: 12px;
+        height: 330px;
+        background: #00adef;
+        transform-origin: 50% 0%;
+      }
+      .title-state {
+        position: absolute;
+        left: 52px;
+        top: 0;
+      }
+      .line {
+        display: block;
+        overflow: hidden;
+        line-height: 1.04;
+        padding-top: 6px;
+        padding-bottom: 0.16em;
+        margin-bottom: -0.16em;
+      }
+      .line-a {
+        font-size: 138px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        text-transform: uppercase;
+      }
+      .line-b {
+        font-size: 132px;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #00adef;
+      }
+      .ch {
+        display: inline-block;
+        will-change: transform;
+      }
+      .sp {
+        display: inline-block;
+        width: 0.26em;
+      }
+
+      /* ---------- throw ---------- */
+      #throw svg {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #arc {
+        fill: none;
+        stroke: rgba(242, 239, 233, 0.55);
+        stroke-width: 3;
+        stroke-linecap: round;
+      }
+      #ground {
+        stroke: rgba(242, 239, 233, 0.22);
+        stroke-width: 2;
+        stroke-dasharray: 6 14;
+      }
+      .tick {
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-width: 2;
+      }
+      #ball {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 34px;
+        height: 34px;
+        margin: -17px 0 0 -17px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9d6cf 45%, #8e8a82 100%);
+        box-shadow: 0 0 34px rgba(255, 255, 255, 0.35);
+      }
+      .upright {
+        stroke: rgba(242, 239, 233, 0.45);
+        stroke-width: 4;
+      }
+      #pit {
+        fill: rgba(214, 178, 120, 0.22);
+      }
+      #pit-edge {
+        stroke: rgba(214, 178, 120, 0.6);
+        stroke-width: 2;
+      }
+      #board {
+        fill: #f2efe9;
+      }
+      #hj-bar {
+        stroke: #f2efe9;
+        stroke-width: 5;
+        stroke-linecap: round;
+      }
+      .pin {
+        stroke-width: 3;
+      }
+      .mat {
+        fill: rgba(242, 239, 233, 0.06);
+        stroke: rgba(242, 239, 233, 0.3);
+        stroke-width: 2;
+      }
+      #vaulter {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 160px;
+        height: 160px;
+        margin: -80px 0 0 -80px;
+      }
+      #vaulter svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      #vaulter circle {
+        fill: #f2efe9;
+      }
+      #vaulter path {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #pole {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 4;
+        stroke-linecap: round;
+      }
+      #box {
+        fill: rgba(242, 239, 233, 0.5);
+      }
+      #arc {
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-dasharray: 2 10;
+      }
+      #fig {
+        fill: none;
+        stroke: #f2efe9;
+        stroke-width: 9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #fig-head {
+        fill: #f2efe9;
+      }
+      #ring {
+        position: absolute;
+        left: 1745px;
+        top: 904px;
+        width: 160px;
+        height: 40px;
+        margin: -20px 0 0 -80px;
+        border-radius: 50%;
+        border: 3px solid #00adef;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="10"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- background type -->
+      <div id="bg" class="layer clip" data-start="0" data-duration="10" data-track-index="0">
+        <div id="mq-big" class="marquee" data-layout-ignore aria-hidden="true">
+          <span>Тройной прыжок ·</span><span>Тройной прыжок ·</span><span>Тройной прыжок ·</span>
+        </div>
+        <div class="rule" style="top: 948px"></div>
+        <div class="rule" style="top: 1022px"></div>
+        <div id="mq-small" class="marquee" data-layout-allow-overflow>
+          <span>ТРОЙНОЙ ПРЫЖОК · МУЖЧИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТРОЙНОЙ ПРЫЖОК · МУЖЧИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТРОЙНОЙ ПРЫЖОК · МУЖЧИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ТРОЙНОЙ ПРЫЖОК · МУЖЧИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span>
+        </div>
+      </div>
+
+      <!-- shot trajectory -->
+      <div id="throw" class="layer clip" data-start="0" data-duration="10" data-track-index="1">
+        <svg viewBox="0 0 1920 1080">
+          <rect id="pit" x="1560" y="900" width="320" height="16" />
+          <line id="pit-edge" x1="1560" y1="900" x2="1880" y2="900" />
+          <line id="ground" x1="160" y1="900" x2="1560" y2="900" />
+          <rect id="board" x="930" y="896" width="34" height="8" />
+          <path id="fig" d="M 0 0" />
+          <circle id="fig-head" cx="0" cy="0" r="12" />
+        </svg>
+        <div id="ring"></div>
+      </div>
+
+      <!-- header + title -->
+      <div id="fg" class="layer clip" data-start="0" data-duration="10" data-track-index="2">
+        <div id="header">
+          <div class="flag">
+            <svg class="flag-by" viewBox="0 0 90 45" aria-label="Флаг Беларуси"><rect width="90" height="30" fill="#c8102e"/><rect y="30" width="90" height="15" fill="#007c30"/><rect width="10" height="45" fill="#fff"/><path d="M5 1 L9 7.5 L5 14 L1 7.5 Z" fill="#c8102e"/><path d="M5 4.5 L7 7.5 L5 10.5 L3 7.5 Z" fill="#fff"/><rect x="4.2" y="6.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 0 L2 0 L0 3 Z M10 0 L8 0 L10 3 Z M0 15 L2 15 L0 12 Z M10 15 L8 15 L10 12 Z" fill="#c8102e"/><path d="M5 16 L9 22.5 L5 29 L1 22.5 Z" fill="#c8102e"/><path d="M5 19.5 L7 22.5 L5 25.5 L3 22.5 Z" fill="#fff"/><rect x="4.2" y="21.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 15 L2 15 L0 18 Z M10 15 L8 15 L10 18 Z M0 30 L2 30 L0 27 Z M10 30 L8 30 L10 27 Z" fill="#c8102e"/><path d="M5 31 L9 37.5 L5 44 L1 37.5 Z" fill="#c8102e"/><path d="M5 34.5 L7 37.5 L5 40.5 L3 37.5 Z" fill="#fff"/><rect x="4.2" y="36.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 30 L2 30 L0 33 Z M10 30 L8 30 L10 33 Z M0 45 L2 45 L0 42 Z M10 45 L8 45 L10 42 Z" fill="#c8102e"/></svg>
+            <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ В ПОМЕЩЕНИИ</span>
+          </div>
+        </div>
+        <div id="logo-card"><img src="assets/logo-2027-dark-bg.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
+        <div id="title-wrap" data-layout-allow-overlap>
+          <div id="accent-bar"></div>
+          <div class="title-state" id="state-1">
+            <span class="line line-a" data-layout-allow-overflow data-text="Тройной прыжок"></span>
+            <span class="line line-b" data-layout-allow-overflow data-text="Мужчины"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // split title lines into letters (setup only, deterministic)
+      document.querySelectorAll(".line").forEach((line) => {
+        const text = line.dataset.text;
+        line.innerHTML = "";
+        line.setAttribute("data-layout-allow-overflow", "");
+        for (const c of text) {
+          const s = document.createElement("span");
+          if (c === " ") {
+            s.className = "sp";
+          } else {
+            s.className = "ch";
+            s.textContent = c;
+          }
+          line.appendChild(s);
+        }
+      });
+
+      const LOOP = 10;
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- marquees: one full repeat per loop, seamless ----
+      tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+      tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
+
+      // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
+      const s1 = (sel) => `#state-1 ${sel} .ch`;
+      tl.set([s1(".line-a"), s1(".line-b")], { yPercent: 0 }, 0);
+      tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
+      tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
+      tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
+      tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
+      tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
+      tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
+
+      // ---- triple jump: run-up, hop, step, jump, landing in the sand ----
+      const fig = document.getElementById("fig");
+      const head = document.getElementById("fig-head");
+      const S = 1.35;
+      const B = { torso: 34 * S, neck: 13 * S, upper: 17 * S, fore: 17 * S, thigh: 23 * S, shin: 22 * S };
+      const HIP_RUN = 900 - (B.thigh + B.shin) + 4;
+      const D2R = Math.PI / 180;
+      const lerp = (a, b, k) => a + (b - a) * k;
+      const smooth = (k) => k * k * (3 - 2 * k);
+      const EASE = { s: smooth, up: (k) => 1 - (1 - k) * (1 - k), down: (k) => k * k };
+
+      const RUN_X0 = 300, RUN_END = 1.1, RUN_X1 = 900;
+      // [time, hipX, hipY, rotation (positive leans forward), vertical ease into this key]
+      const KEYS = [
+        [1.20, 950, HIP_RUN-6, 6, "s"],
+        [1.47, 1080, 800, 3, "up"],
+        [1.75, 1200, HIP_RUN-2, 2, "down"],
+        [1.85, 1236, HIP_RUN-6, 6, "s"],
+        [2.08, 1340, 810, 3, "up"],
+        [2.30, 1440, HIP_RUN-2, 2, "down"],
+        [2.40, 1476, HIP_RUN-6, 6, "s"],
+        [2.75, 1600, 770, 0, "up"],
+        [3.05, 1700, 806, 22, "down"],
+        [3.25, 1745, 866, 26, "down"],
+        [3.55, 1790, 872, 46, "s"],
+        [3.90, 1800, 872, 40, "s"],
+      ];
+      // [arm1, elbow1, arm2, elbow2, freeThigh, freeKnee, takeoffThigh, takeoffKnee]; angles from "down along the body", positive toward the front
+      const POSES = [
+        [1.20, [140, 25, -30, 60, 85, 90, -20, 0]],
+        [1.47, [60, 60, 40, 60, -20, 60, 60, 80]],
+        [1.75, [-20, 60, 30, 60, -25, 70, 15, 10]],
+        [1.85, [140, 25, -30, 60, 85, 90, -20, 0]],
+        [2.08, [120, 40, 110, 40, 80, 90, -30, 40]],
+        [2.30, [30, 50, -20, 50, 15, 10, -25, 60]],
+        [2.40, [-30, 60, 140, 25, -20, 0, 85, 90]],
+        [2.75, [165, 10, 160, 10, 50, 60, 50, 65]],
+        [3.05, [60, 10, 55, 10, 95, 10, 92, 12]],
+        [3.25, [45, 15, 40, 15, 100, 22, 98, 25]],
+        [3.55, [80, 20, 75, 20, 90, 110, 88, 112]],
+        [3.90, [70, 25, 65, 25, 88, 115, 86, 118]],
+      ];
+      const seg = (list, t) => {
+        for (let j = 1; j < list.length; j++) if (t <= list[j][0]) return [j - 1, (t - list[j - 1][0]) / (list[j][0] - list[j - 1][0])];
+        return [list.length - 2, 1];
+      };
+      const hipAt = (t) => {
+        if (t <= RUN_END) {
+          const ph = t * Math.PI * 2 * 2.6;
+          return { x: lerp(RUN_X0, RUN_X1, t / RUN_END), y: HIP_RUN - Math.abs(Math.sin(ph)) * 6, rot: 10 };
+        }
+        if (t <= KEYS[0][0]) {
+          const k = (t - RUN_END) / (KEYS[0][0] - RUN_END), A = KEYS[0];
+          return { x: lerp(RUN_X1, A[1], k), y: lerp(HIP_RUN, A[2], smooth(k)), rot: lerp(10, A[3], smooth(k)) };
+        }
+        const [j, k] = seg(KEYS, t), A = KEYS[j], C = KEYS[j + 1], e = EASE[C[4]](k);
+        return { x: lerp(A[1], C[1], k), y: lerp(A[2], C[2], e), rot: lerp(A[3], C[3], smooth(k)) };
+      };
+      const runPose = (t) => {
+        const ph = t * Math.PI * 2 * 1.3, sn = Math.sin(ph);
+        return [-42 * sn, 85, 42 * sn, 85, 38 * sn + 8, 25 + 60 * Math.max(0, Math.cos(ph)), -38 * sn + 8, 25 + 60 * Math.max(0, -Math.cos(ph))];
+      };
+      const poseAt = (t) => {
+        if (t <= RUN_END) return runPose(t);
+        if (t <= POSES[0][0]) {
+          const k = smooth((t - RUN_END) / (POSES[0][0] - RUN_END)), r = runPose(RUN_END), q = POSES[0][1];
+          return r.map((v, i) => lerp(v, q[i], k));
+        }
+        const [j, k] = seg(POSES, t), A = POSES[j][1], C = POSES[j + 1][1];
+        return A.map((v, i) => lerp(v, C[i], smooth(k)));
+      };
+      const skeleton = (t) => {
+        const h = hipAt(t), P = poseAt(t);
+        const r = h.rot * D2R, c = Math.cos(r), sn = Math.sin(r);
+        const W = (lx, ly) => ({ x: h.x + lx * c - ly * sn, y: h.y + lx * sn + ly * c });
+        const dir = (deg) => [Math.sin(deg * D2R), Math.cos(deg * D2R)];
+        const limb = (ox, oy, a1, l1, a2, l2) => {
+          const [x1, y1] = dir(a1), [x2, y2] = dir(a2);
+          const j = [ox + x1 * l1, oy + y1 * l1];
+          return [W(ox, oy), W(j[0], j[1]), W(j[0] + x2 * l2, j[1] + y2 * l2)];
+        };
+        const sh = -B.torso + 5;
+        return {
+          hip: W(0, 0), neck: W(0, -B.torso), head: W(0, -B.torso - B.neck),
+          arm1: limb(0, sh, P[0], B.upper, P[0] + P[1], B.fore),
+          arm2: limb(0, sh, P[2], B.upper, P[2] + P[3], B.fore),
+          leg1: limb(0, 0, P[4], B.thigh, P[4] - P[5], B.shin),
+          leg2: limb(0, 0, P[6], B.thigh, P[6] - P[7], B.shin),
+        };
+      };
+      const pl = (pts) => "M " + pts.map((q) => `${q.x.toFixed(1)} ${q.y.toFixed(1)}`).join(" L ");
+      const draw = (t) => {
+        const k = skeleton(t);
+        gsap.set(fig, { attr: { d: [pl([k.hip, k.neck]), pl(k.arm1), pl(k.arm2), pl(k.leg1), pl(k.leg2)].join(" ") } });
+        gsap.set(head, { attr: { cx: k.head.x, cy: k.head.y } });
+      };
+
+      gsap.set("#ring", { scale: 0.2, opacity: 0 });
+      draw(0);
+      {
+        const clock = { t: 0 }, END = 3.9, LAND = 3.25;
+        tl.set([fig, head], { opacity: 0 }, 0);
+        tl.to([fig, head], { opacity: 1, duration: 0.35, ease: "power1.out" }, 0);
+        tl.to(clock, { t: END, duration: END, ease: "none", onUpdate: () => draw(clock.t) }, 0);
+        tl.set("#ring", { scale: 0.2, opacity: 1 }, LAND);
+        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.6, ease: "power2.out" }, LAND);
+        tl.to([fig, head], { opacity: 0, duration: 1.0, ease: "power1.inOut" }, 6.2);
+      }
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
