@@ -511,9 +511,9 @@
         const tl = gsap.timeline({ paused: true });
 
         // ---- marquees: one full repeat per loop, seamless ----
-        // the award ceremony is a backdrop for photos: keep it still apart from the thin ticker
+        // the award ceremony is a backdrop for photos: only the background type moves
         const STILL = V.scene === "ceremony";
-        if (!STILL) tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+        tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
         tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
 
         if (!STILL) {
