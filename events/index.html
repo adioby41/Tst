@@ -511,20 +511,24 @@
         const tl = gsap.timeline({ paused: true });
 
         // ---- marquees: one full repeat per loop, seamless ----
-        tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+        // the award ceremony is a backdrop for photos: keep it still apart from the thin ticker
+        const STILL = V.scene === "ceremony";
+        if (!STILL) tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
         tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
 
-        // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
-        const s1 = (sel) => `#state-1 ${sel} .ch`;
-        tl.set([s1(".line-a"), s1(".line-b"), s1(".line-c")], { yPercent: 0 }, 0);
-        tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
-        tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
-        tl.to(s1(".line-c"), { yPercent: -140, duration: 0.6, ease: "power2.in", stagger: 0.012 }, 7.85);
-        tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
-        tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
-        tl.fromTo(s1(".line-c"), { yPercent: 140 }, { yPercent: 0, duration: 0.6, ease: "power2.out", stagger: 0.01 }, 9.05);
-        tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
-        tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
+        if (!STILL) {
+          // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
+          const s1 = (sel) => `#state-1 ${sel} .ch`;
+          tl.set([s1(".line-a"), s1(".line-b"), s1(".line-c")], { yPercent: 0 }, 0);
+          tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
+          tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
+          tl.to(s1(".line-c"), { yPercent: -140, duration: 0.6, ease: "power2.in", stagger: 0.012 }, 7.85);
+          tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
+          tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
+          tl.fromTo(s1(".line-c"), { yPercent: 140 }, { yPercent: 0, duration: 0.6, ease: "power2.out", stagger: 0.01 }, 9.05);
+          tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
+          tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
+        }
 
         buildScene(tl, V);
 

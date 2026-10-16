@@ -291,27 +291,15 @@
       const n = el("text", { x: b.x + W / 2, y: b.top + 70, class: "podium-n" });
       n.textContent = b.n;
     });
+    // medals hang still above the podium: no motion, so the screen works as a photo backdrop
     blocks.forEach((b) => {
-      const g = el("g", { opacity: 0 });
+      const g = el("g", {});
       const cx = b.x + W / 2, cy = b.top - 74;
       el("path", { d: `M ${cx - 22} ${cy - 80} L ${cx} ${cy - 26} L ${cx + 22} ${cy - 80}`, class: "ribbon" }, g);
       el("circle", { cx, cy, r: 34, class: "medal " + b.medal }, g);
       el("circle", { cx, cy, r: 24, class: "medal-in" }, g);
       const t = el("text", { x: cx, y: cy + 11, class: "medal-n" }, g);
       t.textContent = b.n;
-      tl.fromTo(g, { opacity: 0, y: -120, rotation: -8, transformOrigin: `${cx}px ${cy - 80}px` },
-        { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease: "back.out(1.6)" }, b.t);
-      tl.to(g, { opacity: 0, y: -40, duration: 0.8, ease: "power2.in" }, 6.3);
-    });
-    // a burst for the champion
-    const ring = el("circle", { cx: 1550, cy: 626, r: 40, class: "burst", opacity: 0 });
-    tl.set(ring, { opacity: 0.9, attr: { r: 36 } }, 2.0);
-    tl.to(ring, { opacity: 0, attr: { r: 140 }, duration: 1.4, ease: "power2.out" }, 2.0);
-    const SP = [[1500, 560, 2.1], [1610, 580, 2.3], [1470, 640, 2.5], [1640, 650, 2.2], [1560, 520, 2.4]];
-    SP.forEach(([x, y, t]) => {
-      const s = el("path", { d: `M ${x} ${y - 10} L ${x + 3} ${y - 3} L ${x + 10} ${y} L ${x + 3} ${y + 3} L ${x} ${y + 10} L ${x - 3} ${y + 3} L ${x - 10} ${y} L ${x - 3} ${y - 3} Z`, class: "spark", opacity: 0 });
-      tl.fromTo(s, { opacity: 0, scale: 0.3, transformOrigin: `${x}px ${y}px` }, { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }, t);
-      tl.to(s, { opacity: 0, scale: 0.4, duration: 0.6, ease: "power2.in" }, t + 0.6);
     });
   }
 

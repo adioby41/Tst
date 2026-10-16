@@ -422,15 +422,15 @@
       #p1-logo {
         position: absolute;
         left: 150px;
-        top: 190px;
+        top: 170px;
         width: 560px;
-        height: 600px;
+        height: 640px;
         object-fit: contain;
       }
       #p1-text {
         position: absolute;
         left: 770px;
-        top: 250px;
+        top: 190px;
         width: 1080px;
       }
       .t-big {
@@ -457,6 +457,27 @@
         letter-spacing: 0.02em;
         color: #00adef;
         margin-top: 26px;
+      }
+      #orgs {
+        display: flex;
+        align-items: center;
+        gap: 44px;
+        margin-top: 46px;
+      }
+      #org-ministry {
+        height: 170px;
+        width: auto;
+        display: block;
+      }
+      #org-bfla {
+        height: 128px;
+        width: auto;
+        display: block;
+      }
+      .org-div {
+        width: 2px;
+        height: 130px;
+        background: rgba(242, 239, 233, 0.22);
       }
       /* phase 2: disciplines */
       #p2-word {
@@ -600,38 +621,17 @@
             <span class="kl t-big" data-text="Республики Беларусь"></span>
             <span class="kl t-mid" data-text="ПО ЛЁГКОЙ АТЛЕТИКЕ В ПОМЕЩЕНИИ"></span>
             <span class="kl t-city" data-text="Могилёв · 2027"></span>
+            <div id="orgs">
+              <img id="org-ministry" src="assets/logo-ministry.svg" alt="Министерство спорта Республики Беларусь" />
+              <div class="org-div"></div>
+              <img id="org-bfla" src="assets/logo-bfla.svg" alt="Белорусская федерация лёгкой атлетики" />
+            </div>
           </div>
         </div>
 
-        <div class="ph" id="p2">
-          <span id="p2-cap" class="kl" data-text="ВИДЫ ПРОГРАММЫ"></span>
-          <div id="p2-word">
-            <span class="kl w" data-text="Бег"></span>
-            <span class="kl w alt2" data-text="Барьеры"></span>
-            <span class="kl w alt" data-text="Прыжки"></span>
-            <span class="kl w" data-text="Шест"></span>
-            <span class="kl w alt2" data-text="Ядро"></span>
-            <span class="kl w alt" data-text="Ходьба"></span>
-            <span class="kl w" data-text="Эстафета"></span>
-          </div>
-        </div>
-
-        <div class="ph" id="p3">
-          <span id="p3-cap" class="kl" data-text="ОРГАНИЗАТОРЫ"></span>
-          <div id="p3-line"></div>
-          <div class="org" style="left: 300px">
-            <div class="org-slot" id="logo-ministry"><img src="assets/logo-ministry.svg" alt="Министерство спорта Республики Беларусь" /></div>
-            <div class="org-name">Министерство спорта<br />Республики Беларусь</div>
-          </div>
-          <div class="org" style="left: 1000px">
-            <div class="org-slot wide" id="logo-bfla"><img src="assets/logo-bfla.svg" alt="Белорусская федерация лёгкой атлетики" /></div>
-            <div class="org-name">Белорусская федерация<br />лёгкой атлетики</div>
-          </div>
-        </div>
       </div>
     </div>
 
-    <script src="scenes.js"></script>
     <script>
       document.querySelectorAll(".kl").forEach((line) => {
         const text = line.dataset.text || "";
@@ -655,73 +655,7 @@
         tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
         tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
 
-        const chars = (sel) => `${sel} .ch`;
-        const OUT = { yPercent: -140, duration: 0.6, ease: "power2.in", stagger: 0.012 };
-        const IN = { yPercent: 0, duration: 0.75, ease: "power2.out", stagger: 0.014 };
-        const lineIn = (sel, t) => tl.fromTo(chars(sel), { yPercent: 140 }, { ...IN }, t);
-        const lineOut = (sel, t) => tl.to(chars(sel), { ...OUT }, t);
-
-        // ---- phase 1: championship (settled at t=0 and t=20) ----
-        const P1 = ["#p1-text .kl:nth-child(1)", "#p1-text .kl:nth-child(2)", "#p1-text .kl:nth-child(3)", "#p1-text .kl:nth-child(4)"];
-        tl.set(chars("#p1"), { yPercent: 0 }, 0);
-        tl.set("#p1-logo", { opacity: 1, scale: 1 }, 0);
-        P1.forEach((s, i) => lineOut(s, 6.0 + i * 0.08));
-        tl.to("#p1-logo", { opacity: 0, scale: 0.94, duration: 0.6, ease: "power2.in" }, 6.1);
-        P1.forEach((s, i) => lineIn(s, 19.0 + i * 0.1));
-        tl.set("#p1-logo", { opacity: 0, scale: 1.06 }, 18.95);
-        tl.to("#p1-logo", { opacity: 1, scale: 1, duration: 0.95, ease: "power2.out" }, 19.0);
-
-        // ---- phase 2: disciplines ----
-        tl.set(chars("#p2-cap"), { yPercent: 140 }, 0);
-        tl.set(chars("#p2-word"), { yPercent: 175 }, 0);
-        lineIn("#p2-cap", 6.8);
-        const words = Array.from(document.querySelectorAll("#p2-word .w"));
-        const W0 = 7.0, STEP = 0.8;
-        words.forEach((w, i) => {
-          const t = W0 + i * STEP;
-          tl.fromTo(w.querySelectorAll(".ch"), { yPercent: 175 }, { yPercent: 0, duration: 0.4, ease: "power3.out", stagger: 0.02 }, t);
-          tl.to(w.querySelectorAll(".ch"), { yPercent: -175, duration: 0.28, ease: "power3.in", stagger: 0.012 }, t + STEP - 0.4);
-        });
-        lineOut("#p2-cap", 12.6);
-
-        // runners crossing during phase 2
-        const K = window.sceneKit, G = 900;
-        K.el("line", { x1: 160, y1: G, x2: 1880, y2: G, class: "ground" });
-        const pack = [
-          { x0: -360, lane: 40, scale: 1.0, op: 0.35, phase: 3.1 },
-          { x0: -230, lane: 22, scale: 1.12, op: 0.6, phase: 1.7 },
-          { x0: -90, lane: 0, scale: 1.25, op: 1, phase: 0 },
-        ];
-        pack.forEach((r) => {
-          const fig = K.makeFigure(r.scale, r.op), T0 = 7.0, V = 470;
-          const clock = { t: 0 };
-          const upd = () => {
-            const t = clock.t, x = r.x0 + V * Math.max(0, t - T0);
-            const ph = (x - r.x0) / (140 * fig.S) * Math.PI * 2 + r.phase;
-            fig.draw({ x, y: G - r.lane - fig.hipH - Math.abs(Math.sin(ph)) * 5 * fig.S, rot: 9, pose: K.runPose(ph, 0.9), alpha: K.smooth((t - T0) / 0.3) });
-          };
-          upd();
-          tl.to(clock, { t: 13.5, duration: 13.5, ease: "none", onUpdate: upd }, 0);
-        });
-
-        // ---- phase 3: organisers ----
-        tl.set(chars("#p3"), { yPercent: 140 }, 0);
-        tl.set([".org", "#p3-line"], { opacity: 0 }, 0);
-        lineIn("#p3-cap", 13.3);
-        tl.fromTo("#p3-line", { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.8, ease: "power2.out" }, 13.4);
-        tl.fromTo(".org", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.9, ease: "power2.out", stagger: 0.2 }, 13.5);
-        lineOut("#p3-cap", 18.3);
-        tl.to([".org", "#p3-line"], { opacity: 0, y: -30, duration: 0.6, ease: "power2.in", stagger: 0.08 }, 18.3);
-
-        // only the active phase is rendered
-        tl.set("#p1", { visibility: "visible" }, 0);
-        tl.set(["#p2", "#p3"], { visibility: "hidden" }, 0);
-        tl.set("#p1", { visibility: "hidden" }, 6.95);
-        tl.set("#p2", { visibility: "visible" }, 6.75);
-        tl.set("#p2", { visibility: "hidden" }, 13.3);
-        tl.set("#p3", { visibility: "visible" }, 13.25);
-        tl.set("#p3", { visibility: "hidden" }, 19.1);
-        tl.set("#p1", { visibility: "visible" }, 18.98);
+        // one still frame for the whole loop; only the background type drifts
 
         window.__timelines["main"] = tl;
         tl.seek(0);
