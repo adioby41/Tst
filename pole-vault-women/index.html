@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0b0e;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: radial-gradient(120% 90% at 30% 20%, #1a1c22 0%, #0d0e12 55%, #07080a 100%);
+        font-family: "Oswald", sans-serif;
+        color: #f2efe9;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- giant background marquee ---------- */
+      .marquee {
+        position: absolute;
+        left: 0;
+        white-space: nowrap;
+        display: flex;
+        width: max-content;
+      }
+      .marquee span {
+        display: block;
+        padding-right: 80px;
+      }
+      #mq-big {
+        top: 560px;
+        font-size: 270px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.01em;
+        color: #121318;
+        -webkit-text-stroke: 2px rgba(242, 239, 233, 0.13);
+        text-transform: uppercase;
+      }
+      #mq-small {
+        top: 968px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 30px;
+        font-weight: 400;
+        letter-spacing: 0.28em;
+        color: rgba(242, 239, 233, 0.5);
+      }
+      #mq-small span {
+        padding-right: 0;
+      }
+      .rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(242, 239, 233, 0.14);
+      }
+
+      /* ---------- header ---------- */
+      #header {
+        position: absolute;
+        left: 110px;
+        right: 560px;
+        top: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 26px;
+        letter-spacing: 0.22em;
+        color: rgba(242, 239, 233, 0.78);
+      }
+      #header .flag {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      #header .flag-by {
+        display: block;
+        width: 72px;
+        height: 36px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+
+      #logo-card {
+        position: absolute;
+        right: 110px;
+        top: 56px;
+        width: 380px;
+        height: 406px;
+      }
+      #logo-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* ---------- title ---------- */
+      #title-wrap {
+        position: absolute;
+        left: 110px;
+        top: 150px;
+        width: 1500px;
+        height: 420px;
+      }
+      #accent-bar {
+        position: absolute;
+        left: 0;
+        top: 22px;
+        width: 12px;
+        height: 330px;
+        background: #00adef;
+        transform-origin: 50% 0%;
+      }
+      .title-state {
+        position: absolute;
+        left: 52px;
+        top: 0;
+      }
+      .line {
+        display: block;
+        overflow: hidden;
+        line-height: 1.04;
+        padding-top: 6px;
+        padding-bottom: 0.16em;
+        margin-bottom: -0.16em;
+      }
+      .line-a {
+        font-size: 138px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        text-transform: uppercase;
+      }
+      .line-b {
+        font-size: 132px;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #ff5fa8;
+      }
+      .ch {
+        display: inline-block;
+        will-change: transform;
+      }
+      .sp {
+        display: inline-block;
+        width: 0.26em;
+      }
+
+      /* ---------- throw ---------- */
+      #throw svg {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #arc {
+        fill: none;
+        stroke: rgba(242, 239, 233, 0.55);
+        stroke-width: 3;
+        stroke-linecap: round;
+      }
+      #ground {
+        stroke: rgba(242, 239, 233, 0.22);
+        stroke-width: 2;
+        stroke-dasharray: 6 14;
+      }
+      .tick {
+        stroke: rgba(242, 239, 233, 0.28);
+        stroke-width: 2;
+      }
+      #ball {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 34px;
+        height: 34px;
+        margin: -17px 0 0 -17px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9d6cf 45%, #8e8a82 100%);
+        box-shadow: 0 0 34px rgba(255, 255, 255, 0.35);
+      }
+      .upright {
+        stroke: rgba(242, 239, 233, 0.45);
+        stroke-width: 4;
+      }
+      #crossbar {
+        stroke: #f2efe9;
+        stroke-width: 5;
+        stroke-linecap: round;
+      }
+      .mat {
+        fill: rgba(242, 239, 233, 0.06);
+        stroke: rgba(242, 239, 233, 0.3);
+        stroke-width: 2;
+      }
+      #ring {
+        position: absolute;
+        left: 1685px;
+        top: 712px;
+        width: 160px;
+        height: 160px;
+        margin: -80px 0 0 -80px;
+        border-radius: 50%;
+        border: 3px solid #00adef;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="10"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- background type -->
+      <div id="bg" class="layer clip" data-start="0" data-duration="10" data-track-index="0">
+        <div id="mq-big" class="marquee" data-layout-ignore aria-hidden="true">
+          <span>Прыжок с шестом ·</span><span>Прыжок с шестом ·</span><span>Прыжок с шестом ·</span>
+        </div>
+        <div class="rule" style="top: 948px"></div>
+        <div class="rule" style="top: 1022px"></div>
+        <div id="mq-small" class="marquee" data-layout-allow-overflow>
+          <span>ПРЫЖОК С ШЕСТОМ · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ПРЫЖОК С ШЕСТОМ · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ПРЫЖОК С ШЕСТОМ · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span><span>ПРЫЖОК С ШЕСТОМ · ЖЕНЩИНЫ · МОГИЛЁВ 2027 ·&nbsp;</span>
+        </div>
+      </div>
+
+      <!-- shot trajectory -->
+      <div id="throw" class="layer clip" data-start="0" data-duration="10" data-track-index="1">
+        <svg viewBox="0 0 1920 1080">
+          <line id="ground" x1="160" y1="760" x2="1880" y2="760" />
+          <rect class="mat" x="1450" y="712" width="400" height="48" />
+          <line class="upright" x1="1500" y1="760" x2="1500" y2="496" />
+          <line class="upright" x1="1740" y1="760" x2="1740" y2="496" />
+          <line id="crossbar" x1="1500" y1="524" x2="1740" y2="524" />
+          <path id="arc" d="M 1060 760 C 1300 700 1480 470 1615 470 C 1675 470 1690 600 1685 712" />
+        </svg>
+        <div id="ring"></div>
+        <div id="ball"></div>
+      </div>
+
+      <!-- header + title -->
+      <div id="fg" class="layer clip" data-start="0" data-duration="10" data-track-index="2">
+        <div id="header">
+          <div class="flag">
+            <svg class="flag-by" viewBox="0 0 90 45" aria-label="Флаг Беларуси"><rect width="90" height="30" fill="#c8102e"/><rect y="30" width="90" height="15" fill="#007c30"/><rect width="10" height="45" fill="#fff"/><path d="M5 1 L9 7.5 L5 14 L1 7.5 Z" fill="#c8102e"/><path d="M5 4.5 L7 7.5 L5 10.5 L3 7.5 Z" fill="#fff"/><rect x="4.2" y="6.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 0 L2 0 L0 3 Z M10 0 L8 0 L10 3 Z M0 15 L2 15 L0 12 Z M10 15 L8 15 L10 12 Z" fill="#c8102e"/><path d="M5 16 L9 22.5 L5 29 L1 22.5 Z" fill="#c8102e"/><path d="M5 19.5 L7 22.5 L5 25.5 L3 22.5 Z" fill="#fff"/><rect x="4.2" y="21.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 15 L2 15 L0 18 Z M10 15 L8 15 L10 18 Z M0 30 L2 30 L0 27 Z M10 30 L8 30 L10 27 Z" fill="#c8102e"/><path d="M5 31 L9 37.5 L5 44 L1 37.5 Z" fill="#c8102e"/><path d="M5 34.5 L7 37.5 L5 40.5 L3 37.5 Z" fill="#fff"/><rect x="4.2" y="36.7" width="1.6" height="1.6" fill="#c8102e"/><path d="M0 30 L2 30 L0 33 Z M10 30 L8 30 L10 33 Z M0 45 L2 45 L0 42 Z M10 45 L8 45 L10 42 Z" fill="#c8102e"/></svg>
+            <span>ОТКРЫТЫЙ ЧЕМПИОНАТ РЕСПУБЛИКИ БЕЛАРУСЬ В ПОМЕЩЕНИИ</span>
+          </div>
+        </div>
+        <div id="logo-card"><img src="assets/logo-2027-dark-bg.svg" alt="Открытый чемпионат Республики Беларусь в помещении по лёгкой атлетике, Могилёв 2027" /></div>
+        <div id="title-wrap" data-layout-allow-overlap>
+          <div id="accent-bar"></div>
+          <div class="title-state" id="state-1">
+            <span class="line line-a" data-layout-allow-overflow data-text="Прыжок с шестом"></span>
+            <span class="line line-b" data-layout-allow-overflow data-text="Женщины"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // split title lines into letters (setup only, deterministic)
+      document.querySelectorAll(".line").forEach((line) => {
+        const text = line.dataset.text;
+        line.innerHTML = "";
+        line.setAttribute("data-layout-allow-overflow", "");
+        for (const c of text) {
+          const s = document.createElement("span");
+          if (c === " ") {
+            s.className = "sp";
+          } else {
+            s.className = "ch";
+            s.textContent = c;
+          }
+          line.appendChild(s);
+        }
+      });
+
+      const LOOP = 10;
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- marquees: one full repeat per loop, seamless ----
+      tl.fromTo("#mq-big", { xPercent: 0 }, { xPercent: -100 / 3, duration: LOOP, ease: "none" }, 0);
+      tl.fromTo("#mq-small", { xPercent: -25 }, { xPercent: 0, duration: LOOP, ease: "none" }, 0);
+
+      // ---- title: one slow refresh per loop, settled at t=0 and t=10 ----
+      const s1 = (sel) => `#state-1 ${sel} .ch`;
+      tl.set([s1(".line-a"), s1(".line-b")], { yPercent: 0 }, 0);
+      tl.to(s1(".line-a"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.6);
+      tl.to(s1(".line-b"), { yPercent: -140, duration: 0.8, ease: "power2.in", stagger: 0.04 }, 7.75);
+      tl.fromTo(s1(".line-a"), { yPercent: 140 }, { yPercent: 0, duration: 0.85, ease: "power2.out", stagger: 0.03 }, 8.8);
+      tl.fromTo(s1(".line-b"), { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: "power2.out", stagger: 0.03 }, 8.9);
+      tl.to("#accent-bar", { scaleY: 0, duration: 0.8, ease: "power2.in" }, 7.6);
+      tl.to("#accent-bar", { scaleY: 1, duration: 0.9, ease: "power2.out" }, 8.85);
+
+      // ---- pole vault: one slow jump per loop, scene empty at the loop edge ----
+      const arc = document.getElementById("arc");
+      const ball = document.getElementById("ball");
+      const LEN = arc.getTotalLength();
+      // precomputed path samples so the ball rides exactly on the drawn stroke
+      const N = 300;
+      const PTS = Array.from({ length: N + 1 }, (_, i) => arc.getPointAtLength((LEN * i) / N));
+      gsap.set(arc, { strokeDasharray: LEN, strokeDashoffset: LEN });
+      gsap.set("#ring", { scale: 0.2, opacity: 0 });
+      gsap.set(ball, { opacity: 0, x: PTS[0].x, y: PTS[0].y });
+
+      const place = (p) => {
+        const f = p * N, i = Math.min(N - 1, Math.floor(f)), k = f - i;
+        gsap.set(ball, {
+          x: PTS[i].x + (PTS[i + 1].x - PTS[i].x) * k,
+          y: PTS[i].y + (PTS[i + 1].y - PTS[i].y) * k,
+        });
+      };
+
+      {
+        const t0 = 0.6, FLIGHT = 2.4, land = t0 + FLIGHT;
+        const fly = { p: 0 };
+        tl.set(arc, { strokeDashoffset: LEN, opacity: 1 }, 0);
+        tl.set(ball, { opacity: 1 }, t0);
+        tl.to(arc, { strokeDashoffset: 0, duration: FLIGHT, ease: "power1.in" }, t0);
+        tl.to(fly, { p: 1, duration: FLIGHT, ease: "power1.in", onUpdate: () => place(fly.p) }, t0);
+        // landing
+        tl.set("#ring", { scale: 0.2, opacity: 1 }, land);
+        tl.to("#ring", { scale: 1.5, opacity: 0, duration: 1.6, ease: "power2.out" }, land);
+        tl.set(ball, { scale: 1.25 }, land);
+        tl.to(ball, { scale: 1, duration: 0.5, ease: "power2.out" }, land);
+        // clear well before the loop edge
+        tl.to([arc, ball], { opacity: 0, duration: 1.0, ease: "power1.inOut" }, 6.2);
+      }
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
