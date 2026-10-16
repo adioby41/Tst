@@ -526,6 +526,13 @@
         object-fit: contain;
         display: block;
       }
+      .org-slot.wide {
+        width: 600px;
+      }
+      .org-slot.wide img {
+        width: 100%;
+        height: auto;
+      }
       .org-slot.empty {
         border: 2px dashed rgba(242, 239, 233, 0.35);
         border-radius: 8px;
@@ -613,11 +620,11 @@
           <span id="p3-cap" class="kl" data-text="ОРГАНИЗАТОРЫ"></span>
           <div id="p3-line"></div>
           <div class="org" style="left: 300px">
-            <div class="org-slot empty" id="logo-ministry">ЛОГОТИП</div>
-            <div class="org-name">Министерство спорта<br />и туризма<br />Республики Беларусь</div>
+            <div class="org-slot" id="logo-ministry"><img src="assets/logo-ministry.svg" alt="Министерство спорта Республики Беларусь" /></div>
+            <div class="org-name">Министерство спорта<br />Республики Беларусь</div>
           </div>
           <div class="org" style="left: 1000px">
-            <div class="org-slot empty" id="logo-bfla">ЛОГОТИП</div>
+            <div class="org-slot wide" id="logo-bfla"><img src="assets/logo-bfla.svg" alt="Белорусская федерация лёгкой атлетики" /></div>
             <div class="org-name">Белорусская федерация<br />лёгкой атлетики</div>
           </div>
         </div>
@@ -705,6 +712,16 @@
         tl.fromTo(".org", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.9, ease: "power2.out", stagger: 0.2 }, 13.5);
         lineOut("#p3-cap", 18.3);
         tl.to([".org", "#p3-line"], { opacity: 0, y: -30, duration: 0.6, ease: "power2.in", stagger: 0.08 }, 18.3);
+
+        // only the active phase is rendered
+        tl.set("#p1", { visibility: "visible" }, 0);
+        tl.set(["#p2", "#p3"], { visibility: "hidden" }, 0);
+        tl.set("#p1", { visibility: "hidden" }, 6.95);
+        tl.set("#p2", { visibility: "visible" }, 6.75);
+        tl.set("#p2", { visibility: "hidden" }, 13.3);
+        tl.set("#p3", { visibility: "visible" }, 13.25);
+        tl.set("#p3", { visibility: "hidden" }, 19.1);
+        tl.set("#p1", { visibility: "visible" }, 18.98);
 
         window.__timelines["main"] = tl;
         tl.seek(0);
